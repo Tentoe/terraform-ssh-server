@@ -1,7 +1,6 @@
-
 provider "aws" {
-  region                  = "${var.region}"
-  profile                 = "${var.profile}"
+  region  = "${var.region}"
+  profile = "${var.profile}"
 }
 
 data "http" "myipv4" {
@@ -20,20 +19,24 @@ resource "aws_security_group" "allow_ssh" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${local.ipv4}/32"] 
+    cidr_blocks = ["${local.ipv4}/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_instance" "sshserver" {
-  ami = "${lookup(var.al2_ami, var.region)}"
-  instance_type = "t2.micro"
-  key_name = "${var.key_name}"  
+  ami                    = "${lookup(var.al2_ami, var.region)}"
+  instance_type          = "t2.micro"
+  key_name               = "${var.key_name}"
   vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
 }
 
 output "connect" {
   value = "ssh -i '${aws_instance.sshserver.key_name}.pem' ec2-user@${aws_instance.sshserver.public_dns}"
-
 }
-
-
