@@ -6,8 +6,8 @@ variable "profile" {
   default = "terraform"
 }
 
-variable "local_public_key" {
-  default = "${file("~/.ssh/id_rsa.pub")}"
+variable "local_public_key_file" {
+  default = "~/.ssh/id_rsa.pub"
 }
 
 variable "al2_ami" {

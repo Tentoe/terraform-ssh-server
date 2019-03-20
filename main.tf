@@ -13,7 +13,7 @@ locals {
 
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
-  public_key = "${var.local_public_key}"
+  public_key = "${file(var.local_public_key_file)}"
 }
 
 resource "aws_security_group" "allow_ssh" {
