@@ -3,24 +3,18 @@ provider "aws" {
   profile = "${var.profile}"
 }
 
-data "tls_public_key" "local" {
-  private_key_pem = "${file("~/.ssh/id_rsa")}"
-}
-
 data "http" "myipv4" {
   url = "http://ipv4.icanhazip.com"
 }
 
 locals {
   ipv4 = "${chomp(data.http.myipv4.body)}"
-  public_key = "${data.tls_public_key.local.public_key_openssh}"
 }
 
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
-  public_key = "${data.tls_public_key.local.public_key_openssh}"
+  public_key = "${var.local_public_key}"
 }
-
 
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_tls"
@@ -42,9 +36,9 @@ resource "aws_security_group" "allow_ssh" {
 }
 
 resource "aws_instance" "sshserver" {
-  ami = "${lookup(var.al2_ami, var.region)}"
-  instance_type = "t2.micro"
-  key_name = "${aws_key_pair.deployer.key_name}"  
+  ami                    = "${lookup(var.al2_ami, var.region)}"
+  instance_type          = "t2.micro"
+  key_name               = "${aws_key_pair.deployer.key_name}"
   vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
 }
 
