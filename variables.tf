@@ -9,6 +9,12 @@ variable "profile" {
 variable "local_public_key_file" {
   default = "~/.ssh/id_rsa.pub"
 }
+variable "local_private_key_file" {
+  default = "~/.ssh/id_rsa"
+}
+variable "username" {
+  default = "ec2-user"
+}
 
 variable "al2_ami" {
   type = "map"

@@ -40,8 +40,18 @@ resource "aws_instance" "sshserver" {
   instance_type          = "t2.micro"
   key_name               = "${aws_key_pair.deployer.key_name}"
   vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
-}
 
-output "connect" {
-  value = "ssh ec2-user@${aws_instance.sshserver.public_dns}"
+  provisioner "remote-exec" {
+    inline = ["echo 'Waiting for shh to be available'"]
+
+    connection {
+      type        = "ssh"
+      user        = "${var.username}"
+      private_key = "${file(var.local_private_key_file)}"
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "ansible-playbook -u ${var.username} -i '${aws_instance.sshserver.public_ip},'  ./ansible/helloworld.yml"
+  }
 }
